@@ -13,7 +13,7 @@ TELEGRAM_CHAT_ID = 6876481988
 
 FINNHUB_API_KEY = "d0mit59r01qqqs59pcfgd0mit59r01qqqs59pcg0"
 
-finnhub_client = FinnhubClient(api_key=FINNHUB_API_KEY)
+finnhub_client = Client(api_key=FINNHUB_API_KEY)
 telegram_bot = Bot(token=TELEGRAM_TOKEN)
 
 BIST100 = ["THYAO.IS", "AKBNK.IS", "GARAN.IS"]
