@@ -13,7 +13,7 @@ TELEGRAM_CHAT_ID = 6876481988
 
 from finnhub import Client
 
-FINNHUB_API_KEY = "d0mit59r01qqqs59pcfgd0mit59r01qqqs59pcg0"
+FINNHUB_API_KEY = "d0nhn39r01qn5ghjqi5gd0nhn39r01qn5ghjqi60"
 finnhub_client = Client(api_key=FINNHUB_API_KEY)
 
 telegram_bot = Bot(token=TELEGRAM_TOKEN)
