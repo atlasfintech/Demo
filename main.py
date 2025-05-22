@@ -40,7 +40,7 @@ from ta.trend import MACD, EMAIndicator, ADXIndicator, CCIIndicator, IchimokuInd
 from ta.momentum import RSIIndicator, StochasticOscillator, StochRSIIndicator
 from ta.volatility import BollingerBands, AverageTrueRange
 from ta.volume import OnBalanceVolumeIndicator, MFIIndicator
-from ta.overlap import PSARIndicator
+from ta.trend import PSARIndicator
 
 def enrich(df):
     df = df.copy()
