@@ -1,50 +1,46 @@
 # main.py
 
-import os
 import streamlit as st
 import pandas as pd
 import numpy as np
 import datetime as dt
-from dotenv import load_dotenv
 from finnhub import Client as FinnhubClient
 from telegram import Bot
-import smtplib
 
-# TA Libs
-from ta.trend import MACD, EMAIndicator, ADXIndicator, CCIIndicator, IchimokuIndicator
-from ta.momentum import RSIIndicator, StochasticOscillator, StochRSIIndicator
-from ta.volatility import BollingerBands, AverageTrueRange
-from ta.volume import OnBalanceVolumeIndicator, MFIIndicator
-from ta.overlap import PSARIndicator
+# Telegram bilgilerini doğrudan buraya yaz
+TELEGRAM_TOKEN = "7764012513:AAH1ky95MH1XwvsXmWNd0V-1Lc6uGSn3FcA"
+TELEGRAM_CHAT_ID = 123456789  # Buraya kendi chat ID'nizi (int) yazın
 
-# Load environment variables
-load_dotenv()
-FINNHUB_API_KEY  = os.getenv("FINNHUB_API_KEY")
-TELEGRAM_TOKEN   = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-EMAIL_USER       = os.getenv("EMAIL_USER")
-EMAIL_PASS       = os.getenv("EMAIL_PASS")
+FINNHUB_API_KEY = "YOUR_FINNHUB_API_KEY"  # Finnhub API anahtarınızı buraya yazın
 
-finnhub_client = FinnhubClient(api_key=FINNHUB_API_KEY) if FINNHUB_API_KEY else None
-telegram_bot   = Bot(token=TELEGRAM_TOKEN) if TELEGRAM_TOKEN else None
+finnhub_client = FinnhubClient(api_key=FINNHUB_API_KEY)
+telegram_bot = Bot(token=TELEGRAM_TOKEN)
 
 BIST100 = ["THYAO.IS", "AKBNK.IS", "GARAN.IS"]
 BIST30 = BIST100[:30]
 
-def normalize(sym): return sym.strip().upper() + ".IS" if not sym.endswith(".IS") else sym
+def normalize(sym):
+    return sym.strip().upper() + ".IS" if not sym.endswith(".IS") else sym
 
 def fetch_candles(sym, resolution, days):
     now = dt.datetime.utcnow()
     end = int(now.timestamp())
     start = int((now - dt.timedelta(days=days)).timestamp())
     res = finnhub_client.stock_candle(sym, resolution, start, end)
-    if res["s"] != "ok": return None
+    if res["s"] != "ok": 
+        return None
     df = pd.DataFrame({
         "time": pd.to_datetime(res["t"], unit="s"),
         "open": res["o"], "high": res["h"],
         "low": res["l"], "close": res["c"], "volume": res["v"]
     }).set_index("time")
     return df.dropna()
+
+from ta.trend import MACD, EMAIndicator, ADXIndicator, CCIIndicator, IchimokuIndicator
+from ta.momentum import RSIIndicator, StochasticOscillator, StochRSIIndicator
+from ta.volatility import BollingerBands, AverageTrueRange
+from ta.volume import OnBalanceVolumeIndicator, MFIIndicator
+from ta.overlap import PSARIndicator
 
 def enrich(df):
     df = df.copy()
@@ -89,7 +85,8 @@ def quality_filters(df_d, df_h):
 def check_signal(sym):
     df_d = fetch_candles(sym, "D", 90)
     df_h = fetch_candles(sym, "60", 5)
-    if df_d is None or df_h is None: return None
+    if df_d is None or df_h is None: 
+        return None
     df_d, df_h = enrich(df_d), enrich(df_h)
     f = quality_filters(df_d, df_h)
     if f["agree"]:
@@ -100,7 +97,8 @@ def check_signal(sym):
 @st.cache_data(show_spinner=False)
 def run_backtest(sym):
     df = fetch_candles(sym, "D", 180)
-    if df is None: return "Veri alınamadı."
+    if df is None: 
+        return "Veri alınamadı."
     df = enrich(df)
     results = []
     for i in range(50, len(df)-5):
@@ -115,22 +113,22 @@ def run_backtest(sym):
                 if 0.05 <= gain <= 0.10:
                     results.append({
                         "Tarih": entry.Index.strftime("%Y-%m-%d"),
-                        "Yön": direction, "Giriş": round(entry.close, 2),
-                        "Çıkış": round(exit.close, 2), "Getiri (%)": round(gain * 100, 2),
+                        "Yön": direction, 
+                        "Giriş": round(entry.close, 2),
+                        "Çıkış": round(exit.close, 2), 
+                        "Getiri (%)": round(gain * 100, 2),
                         "Vade (gün)": (exit.Index - entry.Index).days
                     })
                     break
     return pd.DataFrame(results) if results else "Sinyal bulunamadı."
 
 def notify(msg):
-    if telegram_bot: telegram_bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=msg)
-    if EMAIL_USER and EMAIL_PASS:
-        with smtplib.SMTP("smtp.gmail.com", 587) as s:
-            s.starttls(); s.login(EMAIL_USER, EMAIL_PASS)
-            s.sendmail(EMAIL_USER, EMAIL_USER, msg)
+    try:
+        telegram_bot.send_message(chat_id=int(TELEGRAM_CHAT_ID), text=msg)
+    except Exception as e:
+        print(f"Telegram gönderme hatası: {e}")
 
-# Streamlit arayüz
-st.set_page_config("AtlasTrade AutoScan")
+st.set_page_config(page_title="AtlasTrade AutoScan")
 st.title("📊 AtlasTrade Otomatik Tarayıcı")
 
 mode = st.radio("Mod:", ["BIST100", "BIST30", "Tek Hisse", "Backtest"])
@@ -141,7 +139,8 @@ if st.button("🔍 Tara") and mode != "Backtest":
     for sym in syms:
         result = check_signal(sym)
         st.write(result)
-        if "SİNYAL" in result: notify(result)
+        if result and "SİNYAL" in result: 
+            notify(result)
 
 if mode == "Backtest" and st.button("🚀 Backtest Başlat"):
     results = run_backtest(normalize(custom))
