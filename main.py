@@ -9,7 +9,7 @@ from telegram import Bot
 
 # Telegram bilgilerini doğrudan buraya yaz
 TELEGRAM_TOKEN = "7764012513:AAH1ky95MH1XwvsXmWNd0V-1Lc6uGSn3FcA"
-TELEGRAM_CHAT_ID = 123456789  # Buraya kendi chat ID'nizi (int) yazın
+TELEGRAM_CHAT_ID = 6876481988
 
 FINNHUB_API_KEY = "YOUR_FINNHUB_API_KEY"  # Finnhub API anahtarınızı buraya yazın
 
