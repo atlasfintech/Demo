@@ -26,7 +26,7 @@ def fetch_candles(sym, resolution, days):
     now = dt.datetime.utcnow()
     end = int(now.timestamp())
     start = int((now - dt.timedelta(days=days)).timestamp())
-    res = finnhub_client.stock_candles(sym, resolution, start, end)
+    res = finnhub_client.stock_candles(symbol, resolution, _from, to)
     if res["s"] != "ok": 
         return None
     df = pd.DataFrame({
