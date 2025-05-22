@@ -11,9 +11,11 @@ from telegram import Bot
 TELEGRAM_TOKEN = "7764012513:AAH1ky95MH1XwvsXmWNd0V-1Lc6uGSn3FcA"
 TELEGRAM_CHAT_ID = 6876481988
 
-FINNHUB_API_KEY = "d0mit59r01qqqs59pcfgd0mit59r01qqqs59pcg0"
+from finnhub import Client
 
+FINNHUB_API_KEY = "d0mit59r01qqqs59pcfgd0mit59r01qqqs59pcg0"
 finnhub_client = Client(api_key=FINNHUB_API_KEY)
+
 telegram_bot = Bot(token=TELEGRAM_TOKEN)
 
 BIST100 = ["THYAO.IS", "AKBNK.IS", "GARAN.IS"]
